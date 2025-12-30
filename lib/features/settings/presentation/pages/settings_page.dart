@@ -32,7 +32,7 @@ class SettingsPage extends StatelessWidget {
                   context: context,
                   builder: (_) => AlertDialog(
                     title: const Text('Quit Confirmation'),
-                    content: const Text('Are you sure you want to log out?'),
+                    content: const Text('Are you sure you want to Sign Out?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),

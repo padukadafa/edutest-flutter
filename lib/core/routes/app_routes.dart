@@ -14,7 +14,7 @@ class AppRoutes {
       case RouteName.splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
-      case RouteName.login:
+      case RouteName.signin:
         return MaterialPageRoute(builder: (_) => const SigninPage());
 
       case RouteName.home:
