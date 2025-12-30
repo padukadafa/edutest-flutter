@@ -1,12 +1,13 @@
-import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:edutest/features/auth/presentation/pages/signin_page.dart'
-    show SigninPage;
 import 'package:edutest/shared/pages/menu_nav_shell.dart';
 import 'package:edutest/features/question/presentation/bloc/vark_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/themes/app_theme.dart';
 import 'injection/injection_container.dart';
+
+import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:edutest/features/auth/presentation/pages/signin_page.dart'
+    show SigninPage;
 
 void main() {
   initInjection();
