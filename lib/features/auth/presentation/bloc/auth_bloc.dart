@@ -18,6 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await Future.delayed(const Duration(seconds: 1));
 
+    if (emit.isDone) return;
+
     if (event.email == 'admin' && event.password == '1234') {
       emit(SigninSuccess());
     } else {

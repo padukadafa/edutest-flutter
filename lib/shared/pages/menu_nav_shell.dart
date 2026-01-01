@@ -27,7 +27,7 @@ class _MenuNavShellState extends State<MenuNavShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: HomeBottomNav(
+      bottomNavigationBar: BottomMenuNav(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
