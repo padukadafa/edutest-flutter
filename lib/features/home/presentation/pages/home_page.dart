@@ -8,10 +8,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return const SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           SizedBox(height: 12),
           HomeBanner(),
           SizedBox(height: 24),
@@ -23,12 +23,7 @@ class HomePage extends StatelessWidget {
 
           SizedBox(height: 16),
 
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: HomeMenuGrid(),
-            ),
-          ),
+          Expanded(child: HomeMenuGrid()),
         ],
       ),
     );

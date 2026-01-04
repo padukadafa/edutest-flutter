@@ -1,48 +1,57 @@
-import 'package:edutest/features/home/presentation/pages/home_page.dart';
+import 'package:edutest/features/question/domain/models/vark_question_model.dart';
+import 'package:edutest/features/question/presentation/bloc/vark_event.dart';
 import 'package:flutter/material.dart';
-import 'package:edutest/shared/pages/splash_screen.dart';
-import 'package:edutest/features/auth/presentation/pages/signin_page.dart';
-import 'package:edutest/features/question/presentation/pages/vark_intro_pages.dart';
-import 'package:edutest/features/question/presentation/pages/vark_question.dart';
-import 'package:edutest/features/question/presentation/pages/vark_result_page.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/question/presentation/pages/vark_intro_pages.dart';
+import '../../features/question/presentation/pages/vark_question.dart';
+import '../../features/question/presentation/pages/vark_result_page.dart';
+import '../../features/question/presentation/bloc/vark_bloc.dart';
 import 'route_name.dart';
 
 class AppRoutes {
-  static Route<dynamic> onGenerate(RouteSettings settings) {
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case RouteName.splash:
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
-
-      case RouteName.signin:
-        return MaterialPageRoute(builder: (_) => const SigninPage());
-
-      case RouteName.home:
-        return MaterialPageRoute(builder: (_) => const HomePage());
-
       case RouteName.varkIntro:
-        return MaterialPageRoute(builder: (_) => const VarkIntroPage());
+        final bloc = VarkBloc();
+        return MaterialPageRoute(
+          builder: (_) =>
+              BlocProvider(create: (_) => bloc, child: const VarkIntroPage()),
+        );
 
       case RouteName.varkQuestion:
-        return MaterialPageRoute(builder: (_) => const VarkQuestionPage());
+        final bloc = settings.arguments;
 
-      case RouteName.varkResult:
-        // SIAP TERIMA ARGUMENT (HASIL Machine Learning)
-        final args = settings.arguments as Map<String, dynamic>?;
+        if (bloc is! VarkBloc) {
+          return MaterialPageRoute(
+            builder: (_) => const Scaffold(
+              body: Center(
+                child: Text(
+                  'VarkBloc tidak ditemukan.\nAkses halaman ini harus dari Intro.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        }
 
         return MaterialPageRoute(
-          builder: (_) => VarkResultPage(result: args?['result']),
+          builder: (_) => BlocProvider.value(
+            value: bloc..add(LoadQuestions()),
+            child: const VarkQuestionPage(),
+          ),
+        );
+
+      case RouteName.varkResult:
+        final result = settings.arguments as VarkQuizResult;
+        return MaterialPageRoute(
+          builder: (_) => VarkResultPage(result: result),
         );
 
       default:
-        return _errorRoute();
+        return MaterialPageRoute(
+          builder: (_) =>
+              const Scaffold(body: Center(child: Text('Page not found'))),
+        );
     }
-  }
-
-  static Route<dynamic> _errorRoute() {
-    return MaterialPageRoute(
-      builder: (_) =>
-          const Scaffold(body: Center(child: Text('Page not found'))),
-    );
   }
 }

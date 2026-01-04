@@ -1,5 +1,3 @@
-import 'package:edutest/features/auth/presentation/pages/signup_page.dart';
-
 class RouteName {
   static const splash = '/';
   static const signin = '/signin';

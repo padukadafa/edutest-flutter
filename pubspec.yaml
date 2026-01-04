@@ -34,6 +34,9 @@ dependencies:
   equatable: ^2.0.5
   get_it: ^7.6.4
   google_fonts: ^6.2.1
+  auto_size_text: ^3.0.0
+  flutter_lints: ^3.0.0
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -75,18 +78,19 @@ flutter:
      - assets/images/logo_edutest.png
      - assets/images/logo_google.png
      - assets/images/logo_facebook.png   
-     - assets/images/image_1.png
-     - assets/images/image_2.png
-     - assets/images/image_3.png
-     - assets/images/image_4.png
+     - assets/images/prior_knowledge.png
+     - assets/images/ecommerce.png
+     - assets/images/ai_engineer.png
      - assets/images/kazuha.jpeg
      - assets/images/none_konten.png
-
+     - assets/images/data_mining.png
+  
      - assets/svg/Circle.svg
      - assets/svg/home.svg
      - assets/svg/discuss.svg
      - assets/svg/setting.svg
      - assets/svg/message.svg
+     - assets/svg/logo_edutest.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

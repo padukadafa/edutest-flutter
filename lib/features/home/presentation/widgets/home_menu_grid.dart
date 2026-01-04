@@ -1,3 +1,4 @@
+import 'package:edutest/core/routes/route_name.dart';
 import 'package:flutter/material.dart';
 
 class HomeMenuGrid extends StatelessWidget {
@@ -7,69 +8,86 @@ class HomeMenuGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final menus = [
       _MenuItem(
+        id: 'prior',
         title: 'Prior Knowledge',
         subtitle: '16 Soal',
-        image: 'assets/images/image_1.png',
+        image: 'assets/images/prior_knowledge.png',
       ),
       _MenuItem(
-        title: 'Data mining',
+        id: 'data_mining',
+        title: 'Data Mining',
         subtitle: '15 Soal',
-        image: 'assets/images/image_2.png',
+        image: 'assets/images/data_mining.png',
       ),
       _MenuItem(
+        id: 'ecommerce',
         title: 'E-Commerce',
         subtitle: '25 Soal',
-        image: 'assets/images/image_3.png',
+        image: 'assets/images/ecommerce.png',
       ),
       _MenuItem(
+        id: 'ai',
         title: 'AI Engineer',
         subtitle: '18 Soal',
-        image: 'assets/images/image_4.png',
+        image: 'assets/images/ai_engineer.png',
       ),
     ];
 
     return GridView.builder(
-      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       itemCount: menus.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 20,
+        mainAxisSpacing: 24,
         crossAxisSpacing: 20,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.78, // bikin card lebih tinggi
       ),
       itemBuilder: (context, index) {
         final item = menus[index];
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+
+        return Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () {
+              Navigator.pushNamed(context, RouteName.varkIntro);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(item.image, height: 80),
-              const SizedBox(height: 16),
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Expanded(flex: 5, child: Image.asset(item.image)),
+                  const SizedBox(height: 20),
+                  Text(
+                    item.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.subtitle,
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                item.subtitle,
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -78,9 +96,15 @@ class HomeMenuGrid extends StatelessWidget {
 }
 
 class _MenuItem {
+  final String id; // kategori untuk VARK
   final String title;
   final String subtitle;
   final String image;
 
-  _MenuItem({required this.title, required this.subtitle, required this.image});
+  _MenuItem({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.image,
+  });
 }

@@ -26,7 +26,7 @@ class AppColors {
   static const link = Color(0xFF0066CC);
   static const hover = Color(0xFFE6F0FF); // Light blue
   static const focus = Color(0xFF99CCFF); // Medium blue
-  static const active = Color(0xFF0B2C5D); // Dark blue
+  static const active = Color(0xff0b2c5d); // Dark blue
   static const visited = Color(0xFF551A8B); // Purple
   static const highlightText = Color(0xFFFFEB3B); // Bright yellow
   static const cardBackground = Color(0xFFFFFFFF);

@@ -1,15 +1,61 @@
-part of 'vark_bloc.dart';
+import '../../domain/models/vark_question_model.dart';
 
-class VarkState extends Equatable {
-  final int index;
+enum VarkStatus { initial, loading, ready, inProgress, completed, error }
+
+class VarkState {
+  final VarkStatus status;
+  final List<VarkQuestion> questions;
+  final int currentQuestionIndex;
+  final Map<int, VarkType> answers;
   final Map<String, int> score;
+  final VarkQuizResult? quizResult;
+  final String? errorMessage;
 
-  const VarkState({this.index = 0, this.score = const {}});
+  const VarkState({
+    this.status = VarkStatus.initial,
+    this.questions = const [],
+    this.currentQuestionIndex = 0,
+    this.answers = const {},
+    this.score = const {},
+    this.quizResult,
+    this.errorMessage,
+  });
 
-  VarkState copyWith({int? index, Map<String, int>? score}) {
-    return VarkState(index: index ?? this.index, score: score ?? this.score);
+  int get totalQuestions => questions.length;
+
+  VarkQuestion? get currentQuestion =>
+      questions.isNotEmpty ? questions[currentQuestionIndex] : null;
+
+  VarkType? get currentAnswer => answers[currentQuestionIndex];
+
+  bool get canGoNext => currentQuestionIndex < questions.length - 1;
+
+  bool get canGoPrevious => currentQuestionIndex > 0;
+
+  bool get allAnswered => answers.length == questions.length;
+
+  bool get isFinished => status == VarkStatus.completed;
+
+  double get progress =>
+      questions.isEmpty ? 0 : (currentQuestionIndex + 1) / questions.length;
+
+  VarkState copyWith({
+    VarkStatus? status,
+    List<VarkQuestion>? questions,
+    int? currentQuestionIndex,
+    Map<int, VarkType>? answers,
+    Map<String, int>? score,
+    VarkQuizResult? quizResult,
+    String? errorMessage,
+  }) {
+    return VarkState(
+      status: status ?? this.status,
+      questions: questions ?? this.questions,
+      currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
+      answers: answers ?? this.answers,
+      score: score ?? this.score,
+      quizResult: quizResult ?? this.quizResult,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
   }
-
-  @override
-  List<Object?> get props => [index, score];
 }

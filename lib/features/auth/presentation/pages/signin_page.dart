@@ -1,4 +1,3 @@
-import 'package:edutest/core/routes/route_name.dart';
 import 'package:edutest/core/themes/app_colors.dart';
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:edutest/features/auth/presentation/pages/signup_page.dart';
@@ -33,14 +32,8 @@ class _SigninPageState extends State<SigninPage> {
                 ).showSnackBar(SnackBar(content: Text(state.message)));
               }
 
-              if (state is SigninSuccess) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  RouteName.home,
-                  (route) => false,
-                );
-              }
+              // Note: Navigation on SigninSuccess is handled automatically
+              // by AuthWrapper which rebuilds based on auth state changes
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

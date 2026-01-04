@@ -1,6 +1,4 @@
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:edutest/features/auth/presentation/pages/signin_page.dart';
-import 'package:edutest/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/profile_card.dart';
