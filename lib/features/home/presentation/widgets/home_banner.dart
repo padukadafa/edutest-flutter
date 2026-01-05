@@ -12,13 +12,13 @@ class HomeBanner extends StatelessWidget {
       child: ContainerCircle(
         height: 140,
         width: MediaQuery.of(context).size.width,
-        child: Row(
+        child: const Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
                     'Hello Hefri,',
                     style: TextStyle(
@@ -35,7 +35,7 @@ class HomeBanner extends StatelessWidget {
                 ],
               ),
             ),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 28,
               backgroundImage: AssetImage('assets/images/kazuha.jpeg'),
             ),

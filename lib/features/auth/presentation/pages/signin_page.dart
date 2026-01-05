@@ -55,11 +55,6 @@ class _SigninPageState extends State<SigninPage> {
 
                 Row(
                   children: [
-                    _socialButton(
-                      'Facebook',
-                      'assets/images/logo_facebook.png',
-                    ),
-                    const SizedBox(width: 16),
                     _socialButton('Google', 'assets/images/logo_google.png'),
                   ],
                 ),

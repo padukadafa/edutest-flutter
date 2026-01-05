@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/vark_bloc.dart';
 import '../bloc/vark_event.dart';
 import '../bloc/vark_state.dart';
-import '../../domain/models/vark_question_model.dart';
 
 class VarkQuestionPage extends StatelessWidget {
   const VarkQuestionPage({super.key});

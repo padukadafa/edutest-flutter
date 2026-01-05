@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../bloc/vark_event.dart';
 import '../../domain/models/vark_question_model.dart';
 import '../../domain/models/learning_style_descriptions.dart';
 

@@ -2,7 +2,6 @@ import '../domain/models/vark_question_model.dart';
 
 class VarkQuestions {
   static final List<VarkQuestion> questions = [
-    /// 1
     const VarkQuestion(
       id: 1,
       category: 'VARK',
@@ -17,7 +16,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 2
     const VarkQuestion(
       id: 2,
       category: 'VARK',
@@ -31,7 +29,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 3
     const VarkQuestion(
       id: 3,
       category: 'VARK',
@@ -45,7 +42,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 4
     const VarkQuestion(
       id: 4,
       category: 'VARK',
@@ -59,7 +55,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 5
     const VarkQuestion(
       id: 5,
       category: 'VARK',
@@ -72,7 +67,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 6
     const VarkQuestion(
       id: 6,
       category: 'VARK',
@@ -86,7 +80,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 7
     const VarkQuestion(
       id: 7,
       category: 'VARK',
@@ -99,7 +92,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 8
     const VarkQuestion(
       id: 8,
       category: 'VARK',
@@ -112,7 +104,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 9
     const VarkQuestion(
       id: 9,
       category: 'VARK',
@@ -125,7 +116,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 10
     const VarkQuestion(
       id: 10,
       category: 'VARK',
@@ -138,7 +128,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 11
     const VarkQuestion(
       id: 11,
       category: 'VARK',
@@ -151,7 +140,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 12
     const VarkQuestion(
       id: 12,
       category: 'VARK',
@@ -164,7 +152,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 13
     const VarkQuestion(
       id: 13,
       category: 'VARK',
@@ -177,7 +164,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 14
     const VarkQuestion(
       id: 14,
       category: 'VARK',
@@ -190,7 +176,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 15
     const VarkQuestion(
       id: 15,
       category: 'VARK',
@@ -204,7 +189,6 @@ class VarkQuestions {
       },
     ),
 
-    /// 16
     const VarkQuestion(
       id: 16,
       category: 'VARK',

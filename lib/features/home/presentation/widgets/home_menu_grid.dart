@@ -40,7 +40,7 @@ class HomeMenuGrid extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 24,
         crossAxisSpacing: 20,
-        childAspectRatio: 0.78, // bikin card lebih tinggi
+        childAspectRatio: 0.78,
       ),
       itemBuilder: (context, index) {
         final item = menus[index];
@@ -96,7 +96,7 @@ class HomeMenuGrid extends StatelessWidget {
 }
 
 class _MenuItem {
-  final String id; // kategori untuk VARK
+  final String id;
   final String title;
   final String subtitle;
   final String image;

@@ -43,7 +43,6 @@ extension VarkTypeExtension on VarkType {
   }
 }
 
-/// Question model for VARK quiz
 class VarkQuestion extends Equatable {
   final int id;
   final String question;
@@ -57,10 +56,8 @@ class VarkQuestion extends Equatable {
     required this.category,
   });
 
-  /// Get option for a specific VARK type
   String? getOption(VarkType type) => options[type];
 
-  /// Get all options as a list with their types
   List<MapEntry<VarkType, String>> getOptionsList() {
     return options.entries.toList()
       ..sort((a, b) => a.key.index.compareTo(b.key.index));
@@ -70,7 +67,6 @@ class VarkQuestion extends Equatable {
   List<Object?> get props => [id, question, options, category];
 }
 
-/// Learning style result model
 class LearningStyleResult extends Equatable {
   final VarkType type;
   final int score;
@@ -86,7 +82,6 @@ class LearningStyleResult extends Equatable {
   List<Object?> get props => [type, score, percentage];
 }
 
-/// Complete quiz result
 class VarkQuizResult extends Equatable {
   final Map<VarkType, int> scores;
   final List<LearningStyleResult> results;
@@ -100,19 +95,16 @@ class VarkQuizResult extends Equatable {
     required this.totalQuestions,
   });
 
-  /// Get results sorted by score (highest first)
   List<LearningStyleResult> get sortedResults {
     return List.from(results)..sort((a, b) => b.score.compareTo(a.score));
   }
 
-  /// Check if there's a tie for dominant style
   bool hasTie() {
     if (results.isEmpty) return false;
     final maxScore = results.first.score;
     return results.where((r) => r.score == maxScore).length > 1;
   }
 
-  /// Get tied styles if any
   List<VarkType> getTiedStyles() {
     if (results.isEmpty) return [];
     final maxScore = results.first.score;

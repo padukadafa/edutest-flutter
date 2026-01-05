@@ -44,11 +44,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 32),
 
-              // SOCIAL BUTTONS
               Row(
                 children: [
-                  _socialButton('Facebook', 'assets/images/logo_facebook.png'),
-                  const SizedBox(width: 16),
                   _socialButton('Google', 'assets/images/logo_google.png'),
                 ],
               ),
@@ -57,12 +54,10 @@ class _SignUpPageState extends State<SignUpPage> {
               _orDivider(),
               const SizedBox(height: 24),
 
-              // NAME
               ReusableTextField(controller: _nameController, hint: 'Name'),
 
               const SizedBox(height: 18),
 
-              // EMAIL / PHONE
               ReusableTextField(
                 controller: _emailController,
                 hint: 'Email/Phone Number',
@@ -71,7 +66,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 18),
 
-              // PASSWORD
               ReusableTextField(
                 controller: _passwordController,
                 hint: 'Password',
@@ -90,7 +84,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 16),
 
-              // TERMS & PRIVACY
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -103,9 +96,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   Expanded(
                     child: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(color: AppColors.textSecondary),
-                        children: const [
+                      text: const TextSpan(
+                        style: TextStyle(color: AppColors.textSecondary),
+                        children: [
                           TextSpan(text: "I’m agree to The "),
                           TextSpan(
                             text: "Terms of Service",
@@ -125,7 +118,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 16),
 
-              // CREATE ACCOUNT BUTTON
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -203,8 +195,8 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Widget _orDivider() {
-    return Row(
-      children: const [
+    return const Row(
+      children: [
         Expanded(child: Divider(thickness: 1, color: Color(0xFFE0E0E0))),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
