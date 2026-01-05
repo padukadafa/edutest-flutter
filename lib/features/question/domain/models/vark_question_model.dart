@@ -1,9 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-/// Represents a VARK learning style type
 enum VarkType { visual, auditory, readWrite, kinesthetic }
 
-/// Extension to get display name and other helpers
 extension VarkTypeExtension on VarkType {
   String get letter {
     switch (this) {

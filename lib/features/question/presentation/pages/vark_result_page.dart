@@ -259,11 +259,11 @@ class VarkResultPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Icon(Icons.lightbulb_outline, color: Colors.amber),
-            const SizedBox(width: 8),
-            const Text(
+            Icon(Icons.lightbulb_outline, color: Colors.amber),
+            SizedBox(width: 8),
+            Text(
               'Tips Belajar untuk Anda',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),

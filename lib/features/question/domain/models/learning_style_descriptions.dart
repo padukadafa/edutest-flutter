@@ -1,8 +1,6 @@
 import 'vark_question_model.dart';
 
-/// Learning style descriptions and tips
 class LearningStyleDescriptions {
-  /// Get full description for a learning style
   static String getDescription(VarkType type) {
     switch (type) {
       case VarkType.visual:
@@ -20,7 +18,6 @@ class LearningStyleDescriptions {
     }
   }
 
-  /// Get tips for studying based on learning style
   static List<String> getStudyTips(VarkType type) {
     switch (type) {
       case VarkType.visual:
@@ -58,7 +55,6 @@ class LearningStyleDescriptions {
     }
   }
 
-  /// Get careers that match the learning style
   static List<String> getCareerSuggestions(VarkType type) {
     switch (type) {
       case VarkType.visual:
@@ -84,7 +80,6 @@ class LearningStyleDescriptions {
     }
   }
 
-  /// Get a motivational message based on learning style
   static String getMotivation(VarkType type) {
     switch (type) {
       case VarkType.visual:
@@ -99,7 +94,6 @@ class LearningStyleDescriptions {
   }
 }
 
-/// Color mapping for each VARK type
 extension VarkColor on VarkType {
   int get colorValue {
     switch (this) {
