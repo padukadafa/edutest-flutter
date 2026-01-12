@@ -1,14 +1,18 @@
-import '../../domain/models/vark_question_model.dart';
+import 'package:equatable/equatable.dart';
+import '../../data/models/vark_question_model.dart';
+import '../../data/entities/vark_result.dart';
+import '../../domain/entities/ml_prediction.dart';
 
 enum VarkStatus { initial, loading, ready, inProgress, completed, error }
 
-class VarkState {
+class VarkState extends Equatable {
   final VarkStatus status;
   final List<VarkQuestion> questions;
   final int currentQuestionIndex;
   final Map<int, VarkType> answers;
   final Map<String, int> score;
-  final VarkQuizResult? quizResult;
+  final VarkResult? quizResult;
+  final MLPrediction? prediction;
   final String? errorMessage;
 
   const VarkState({
@@ -18,6 +22,7 @@ class VarkState {
     this.answers = const {},
     this.score = const {},
     this.quizResult,
+    this.prediction,
     this.errorMessage,
   });
 
@@ -45,7 +50,8 @@ class VarkState {
     int? currentQuestionIndex,
     Map<int, VarkType>? answers,
     Map<String, int>? score,
-    VarkQuizResult? quizResult,
+    VarkResult? quizResult,
+    MLPrediction? prediction,
     String? errorMessage,
   }) {
     return VarkState(
@@ -55,7 +61,20 @@ class VarkState {
       answers: answers ?? this.answers,
       score: score ?? this.score,
       quizResult: quizResult ?? this.quizResult,
+      prediction: prediction ?? this.prediction,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    status,
+    questions,
+    currentQuestionIndex,
+    answers,
+    score,
+    quizResult,
+    prediction,
+    errorMessage,
+  ];
 }

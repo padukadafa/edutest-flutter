@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/vark_question_model.dart';
-import '../../domain/models/learning_style_descriptions.dart';
+import '../../data/models/vark_question_model.dart';
+import '../../data/models/learning_style_descriptions.dart';
 
 class VarkResultPage extends StatelessWidget {
   final VarkQuizResult result;

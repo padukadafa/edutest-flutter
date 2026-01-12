@@ -1,7 +1,8 @@
-import 'package:edutest/features/question/domain/models/vark_question_model.dart';
+import 'package:edutest/features/question/data/models/vark_question_model.dart';
 import 'package:edutest/features/question/presentation/bloc/vark_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../injection/injection.dart';
 import '../../features/question/presentation/pages/vark_intro_pages.dart';
 import '../../features/question/presentation/pages/vark_question.dart';
 import '../../features/question/presentation/pages/vark_result_page.dart';
@@ -12,7 +13,7 @@ class AppRoutes {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RouteName.varkIntro:
-        final bloc = VarkBloc();
+        final bloc = sl<VarkBloc>();
         return MaterialPageRoute(
           builder: (_) =>
               BlocProvider(create: (_) => bloc, child: const VarkIntroPage()),

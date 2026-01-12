@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:edutest/features/question/domain/models/vark_question_model.dart';
+import 'package:edutest/features/question/data/models/vark_question_model.dart';
 
 class QuestionCard extends StatelessWidget {
   final VarkQuestion question;

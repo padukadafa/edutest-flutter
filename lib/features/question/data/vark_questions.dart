@@ -1,4 +1,4 @@
-import '../domain/models/vark_question_model.dart';
+import 'models/vark_question_model.dart';
 
 class VarkQuestions {
   static final List<VarkQuestion> questions = [

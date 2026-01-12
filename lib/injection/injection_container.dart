@@ -7,5 +7,4 @@ final sl = GetIt.instance;
 void initInjection() {
   // Register Blocs
   sl.registerFactory(() => AuthBloc());
-  sl.registerFactory(() => VarkBloc());
 }
