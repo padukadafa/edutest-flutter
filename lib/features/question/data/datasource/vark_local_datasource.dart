@@ -66,12 +66,8 @@ class VarkLocalDataSourceImpl implements VarkLocalDataSource {
   }
 
   @override
-  Future<void> cachePrediction(MLPrediction prediction) async {
-    // TODO: Implement caching if needed
-  }
+  Future<void> cachePrediction(MLPrediction prediction) async {}
 
   @override
-  Future<void> savePredictionToDatabase(MLPrediction prediction) async {
-    // TODO: Implement database save if needed
-  }
+  Future<void> savePredictionToDatabase(MLPrediction prediction) async {}
 }
