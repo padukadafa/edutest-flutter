@@ -31,7 +31,6 @@ class VarkLocalDataSourceImpl implements VarkLocalDataSource {
             VarkQuestion(id: 0, category: 'VARK', question: '', options: {}),
       );
 
-      // Find which VarkType matches the selected option
       for (final optionEntry in question.options.entries) {
         if (optionEntry.value == selectedType) {
           final typeKey = optionEntry.key.letter;
@@ -41,13 +40,11 @@ class VarkLocalDataSourceImpl implements VarkLocalDataSource {
       }
     }
 
-    // Calculate results
     final results = <VarkType, int>{};
     for (final type in VarkType.values) {
       results[type] = scores[type.letter] ?? 0;
     }
 
-    // Determine dominant style
     final dominantStyle = results.entries
         .reduce((max, e) => e.value > max.value ? e : max)
         .key;
