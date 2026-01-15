@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:edutest/core/error/failure.dart';
-import 'package:edutest/features/question/data/datasource/vark_local_datasource.dart';
-import 'package:edutest/features/question/data/datasource/vark_remote_datasource.dart';
-import 'package:edutest/features/question/data/entities/vark_result.dart';
-import 'package:edutest/features/question/data/models/vark_question_model.dart';
-import 'package:edutest/features/question/domain/entities/ml_prediction.dart';
-import 'package:edutest/features/question/domain/repositories/vark_repository.dart';
+import '../../../../core/error/failure.dart';
+import '../../domain/entities/ml_prediction.dart';
+import '../../domain/repositories/vark_repository.dart';
+import '../datasource/vark_local_datasource.dart';
+import '../datasource/vark_remote_datasource.dart';
+import '../entities/vark_result.dart';
+import '../models/vark_question_model.dart';
 
 class VarkRepositoryImpl implements VarkRepository {
   final VarkRemoteDataSource remoteDataSource;
@@ -22,7 +22,7 @@ class VarkRepositoryImpl implements VarkRepository {
       final questions = await localDataSource.getQuestions();
       return Right(questions);
     } catch (e) {
-      return Left(CacheFailure(message: e.toString()));
+      return Left(CacheFailure(message: 'Failed to get questions: $e'));
     }
   }
 
@@ -34,7 +34,7 @@ class VarkRepositoryImpl implements VarkRepository {
       final result = await localDataSource.calculateScores(answers);
       return Right(result);
     } catch (e) {
-      return Left(CacheFailure(message: e.toString()));
+      return Left(CacheFailure(message: 'Failed to calculate scores: $e'));
     }
   }
 
@@ -53,9 +53,6 @@ class VarkRepositoryImpl implements VarkRepository {
         kinestheticScore: kinestheticScore,
       );
 
-      // Save to local cache
-      await localDataSource.cachePrediction(prediction);
-
       return Right(prediction);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
@@ -65,12 +62,22 @@ class VarkRepositoryImpl implements VarkRepository {
   }
 
   @override
+  Future<Either<Failure, bool>> checkServerHealth() async {
+    try {
+      final isHealthy = await remoteDataSource.healthCheck();
+      return Right(isHealthy);
+    } catch (e) {
+      return Left(ServerFailure(message: 'Health check failed: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> savePrediction(MLPrediction prediction) async {
     try {
       await localDataSource.savePredictionToDatabase(prediction);
       return const Right(true);
     } catch (e) {
-      return Left(CacheFailure(message: e.toString()));
+      return Left(CacheFailure(message: 'Failed to save prediction: $e'));
     }
   }
 }

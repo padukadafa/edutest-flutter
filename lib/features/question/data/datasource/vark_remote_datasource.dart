@@ -16,27 +16,30 @@ class VarkRemoteDataSourceImpl implements VarkRemoteDataSource {
   final Dio dio;
   final String baseUrl;
 
-  VarkRemoteDataSourceImpl({required this.dio, required this.baseUrl}) {
+  VarkRemoteDataSourceImpl({
+    required this.dio,
+    this.baseUrl = 'http://103.161.184.37:4000', // IP server
+  }) {
     dio.options.baseUrl = baseUrl;
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
 
-    // Add interceptor untuk logging
+    // Add logging interceptor
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print('🌐 REQUEST: ${options.method} ${options.uri}');
-          print('📤 DATA: ${options.data}');
+          print('REQUEST: ${options.method} ${options.path}');
+          print('DATA: ${options.data}');
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          print('✅ RESPONSE: ${response.statusCode}');
-          print('📥 DATA: ${response.data}');
+          print('RESPONSE: ${response.statusCode}');
+          print('DATA: ${response.data}');
           return handler.next(response);
         },
         onError: (error, handler) {
-          print('❌ ERROR: ${error.message}');
-          print('📛 RESPONSE: ${error.response?.data}');
+          print('ERROR: ${error.message}');
+          print('RESPONSE: ${error.response?.data}');
           return handler.next(error);
         },
       ),
@@ -94,28 +97,22 @@ class VarkRemoteDataSourceImpl implements VarkRemoteDataSource {
         message = data['detail'].toString();
       }
 
-      return ServerException(
-        message: message,
-        statusCode: error.response!.statusCode,
-      );
+      return ServerException(message: message);
     } else if (error.type == DioExceptionType.connectionTimeout) {
       return ServerException(
-        message: 'Connection timeout. Check your internet connection.',
+        message: 'Connection timeout. Check your internet.',
       );
     } else if (error.type == DioExceptionType.receiveTimeout) {
-      return ServerException(message: 'Server took too long to respond.');
+      return ServerException(message: 'Server timeout.');
     } else {
       return ServerException(message: 'Network error: ${error.message}');
     }
   }
 }
 
-// Exception class
 class ServerException implements Exception {
   final String message;
-  final int? statusCode;
-
-  ServerException({required this.message, this.statusCode});
+  ServerException({required this.message});
 
   @override
   String toString() => 'ServerException: $message';

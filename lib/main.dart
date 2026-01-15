@@ -6,9 +6,9 @@ import 'injection/injection_container.dart';
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:edutest/shared/pages/auth_wrapper.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  initInjection();
+  await initInjection();
   runApp(const MyApp());
 }
 

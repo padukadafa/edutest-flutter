@@ -15,5 +15,6 @@ abstract class VarkRepository {
     required int readingScore,
     required int kinestheticScore,
   });
+  Future<Either<Failure, bool>> checkServerHealth();
   Future<Either<Failure, bool>> savePrediction(MLPrediction prediction);
 }

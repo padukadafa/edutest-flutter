@@ -1,152 +1,182 @@
+import 'dart:async';
+import 'package:edutest/features/question/data/models/vark_question_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/usecases/get_ml_prediction.dart';
+import 'package:equatable/equatable.dart';
+import '../cubit/vark_cubit.dart';
+import '../../domain/entities/ml_prediction.dart';
 import '../../domain/usecases/get_vark_questions.dart';
 import '../../domain/usecases/calculate_vark_scores.dart';
-import '../../data/models/vark_question_model.dart';
-import 'vark_event.dart';
-import 'vark_state.dart';
+
+part 'vark_event.dart';
+part 'vark_state.dart';
 
 class VarkBloc extends Bloc<VarkEvent, VarkState> {
-  final GetMLPrediction getMLPrediction;
   final GetVarkQuestions getVarkQuestions;
   final CalculateVarkScores calculateVarkScores;
+  final VarkCubit varkCubit; // ← Cubit untuk server connection
+
+  StreamSubscription? _cubitSubscription;
 
   VarkBloc({
-    required this.getMLPrediction,
     required this.getVarkQuestions,
     required this.calculateVarkScores,
-  }) : super(const VarkState()) {
-    on<LoadQuestions>(_onLoadQuestions);
-    on<SelectAnswer>(_onSelectAnswer);
-    on<NextQuestion>(_onNextQuestion);
-    on<PreviousQuestion>(_onPreviousQuestion);
-    on<GoToQuestion>(_onGoToQuestion);
-    on<SubmitQuiz>(_onSubmitQuiz);
-    on<ResetVark>(_onResetVark);
+    required this.varkCubit,
+  }) : super(VarkInitial()) {
+    // Listen to Cubit state changes
+    _cubitSubscription = varkCubit.stream.listen((cubitState) {
+      if (cubitState is VarkCubitPredictionSuccess) {
+        // Emit success state dengan ML prediction
+        if (state is VarkMLProcessing) {
+          final processingState = state as VarkMLProcessing;
+          add(
+            VarkMLPredictionReceived(
+              prediction: cubitState.prediction,
+              traditionalScores: processingState.traditionalScores,
+            ),
+          );
+        }
+      } else if (cubitState is VarkCubitConnectionError) {
+        // Emit error state
+        add(VarkMLPredictionFailed(cubitState.message));
+      }
+    });
+
+    on<VarkStarted>(_onStarted);
+    on<VarkQuestionAnswered>(_onQuestionAnswered);
+    on<VarkAssessmentCompleted>(_onAssessmentCompleted);
+    on<VarkMLPredictionReceived>(_onMLPredictionReceived);
+    on<VarkMLPredictionFailed>(_onMLPredictionFailed);
   }
 
-  Future<void> _onLoadQuestions(
-    LoadQuestions event,
-    Emitter<VarkState> emit,
-  ) async {
-    emit(state.copyWith(status: VarkStatus.loading));
+  Future<void> _onStarted(VarkStarted event, Emitter<VarkState> emit) async {
+    emit(VarkLoading());
 
     final result = await getVarkQuestions();
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(status: VarkStatus.error, errorMessage: failure.message),
-      ),
+      (failure) => emit(VarkError(failure.message)),
       (questions) => emit(
-        state.copyWith(
-          status: VarkStatus.inProgress,
-          questions: questions,
-          currentQuestionIndex: 0,
-          answers: {},
-          score: {},
-        ),
+        VarkQuestionsLoaded(questions: questions, currentIndex: 0, answers: {}),
       ),
     );
   }
 
-  Future<void> _onSelectAnswer(
-    SelectAnswer event,
+  Future<void> _onQuestionAnswered(
+    VarkQuestionAnswered event,
     Emitter<VarkState> emit,
   ) async {
-    final updatedAnswers = Map<int, VarkType>.from(state.answers)
-      ..[state.currentQuestionIndex] = event.type;
+    final currentState = state;
+    if (currentState is VarkQuestionsLoaded) {
+      // Convert VarkType to letter string for storage
+      final updatedAnswers = Map<String, String>.from(currentState.answers)
+        ..[event.questionId] = event.selectedOption.letter;
 
-    emit(state.copyWith(answers: updatedAnswers));
-  }
+      final nextIndex = currentState.currentIndex + 1;
 
-  Future<void> _onNextQuestion(
-    NextQuestion event,
-    Emitter<VarkState> emit,
-  ) async {
-    if (state.canGoNext) {
-      emit(
-        state.copyWith(currentQuestionIndex: state.currentQuestionIndex + 1),
-      );
-    }
-  }
-
-  Future<void> _onPreviousQuestion(
-    PreviousQuestion event,
-    Emitter<VarkState> emit,
-  ) async {
-    if (state.canGoPrevious) {
-      emit(
-        state.copyWith(currentQuestionIndex: state.currentQuestionIndex - 1),
-      );
-    }
-  }
-
-  Future<void> _onGoToQuestion(
-    GoToQuestion event,
-    Emitter<VarkState> emit,
-  ) async {
-    if (event.index >= 0 && event.index < state.totalQuestions) {
-      emit(state.copyWith(currentQuestionIndex: event.index));
-    }
-  }
-
-  Future<void> _onSubmitQuiz(SubmitQuiz event, Emitter<VarkState> emit) async {
-    emit(state.copyWith(status: VarkStatus.loading));
-
-    // Convert answers (Map<int, VarkType>) to required format (Map<String, String>)
-    final answersMap = <String, String>{};
-    for (final entry in state.answers.entries) {
-      answersMap[entry.key.toString()] = entry.value.letter;
-    }
-
-    final scoresResult = await calculateVarkScores(answersMap);
-
-    scoresResult.fold(
-      (failure) => emit(
-        state.copyWith(status: VarkStatus.error, errorMessage: failure.message),
-      ),
-      (result) async {
-        // Calculate traditional scores
-        final traditionalScores = <String, int>{};
-        for (final entry in result.scores.entries) {
-          traditionalScores[entry.key.letter] = entry.value;
-        }
-
-        // Call ML prediction
+      if (nextIndex < currentState.questions.length) {
         emit(
-          state.copyWith(
-            status: VarkStatus.loading,
-            quizResult: result,
-            score: traditionalScores,
+          currentState.copyWith(
+            currentIndex: nextIndex,
+            answers: updatedAnswers,
           ),
         );
+      } else {
+        // Calculate scores - use updatedAnswers directly (no params wrapper)
+        final scoresResult = await calculateVarkScores(updatedAnswers);
 
-        final predictionResult = await getMLPrediction(
-          visualScore: traditionalScores['V'] ?? 0,
-          auditoryScore: traditionalScores['A'] ?? 0,
-          readingScore: traditionalScores['R'] ?? 0,
-          kinestheticScore: traditionalScores['K'] ?? 0,
-        );
+        scoresResult.fold((failure) => emit(VarkError(failure.message)), (
+          scores,
+        ) {
+          add(
+            VarkAssessmentCompleted(
+              visualScore: scores.scores[VarkType.visual]!,
+              auditoryScore: scores.scores[VarkType.auditory]!,
+              readingScore: scores.scores[VarkType.readWrite]!,
+              kinestheticScore: scores.scores[VarkType.kinesthetic]!,
+            ),
+          );
+        });
+      }
+    }
+  }
 
-        predictionResult.fold(
-          (failure) => emit(
-            state.copyWith(
-              status: VarkStatus.error,
-              errorMessage: failure.message,
-            ),
-          ),
-          (prediction) => emit(
-            state.copyWith(
-              status: VarkStatus.completed,
-              prediction: prediction,
-            ),
-          ),
-        );
-      },
+  Future<void> _onAssessmentCompleted(
+    VarkAssessmentCompleted event,
+    Emitter<VarkState> emit,
+  ) async {
+    // Emit processing state
+    emit(
+      VarkMLProcessing(
+        traditionalScores: {
+          'visual': event.visualScore,
+          'auditory': event.auditoryScore,
+          'reading': event.readingScore,
+          'kinesthetic': event.kinestheticScore,
+        },
+      ),
+    );
+
+    // Call Cubit to get ML prediction
+    await varkCubit.getPrediction(
+      visualScore: event.visualScore,
+      auditoryScore: event.auditoryScore,
+      readingScore: event.readingScore,
+      kinestheticScore: event.kinestheticScore,
     );
   }
 
-  Future<void> _onResetVark(ResetVark event, Emitter<VarkState> emit) async {
-    emit(const VarkState());
+  void _onMLPredictionReceived(
+    VarkMLPredictionReceived event,
+    Emitter<VarkState> emit,
+  ) {
+    // Create VarkQuizResult from traditional scores
+    final varkScores = <VarkType, int>{
+      VarkType.visual: event.traditionalScores['visual'] ?? 0,
+      VarkType.auditory: event.traditionalScores['auditory'] ?? 0,
+      VarkType.readWrite: event.traditionalScores['reading'] ?? 0,
+      VarkType.kinesthetic: event.traditionalScores['kinesthetic'] ?? 0,
+    };
+
+    final dominantStyle = varkScores.entries
+        .reduce((max, e) => e.value > max.value ? e : max)
+        .key;
+
+    final total = varkScores.values.fold(0, (sum, v) => sum + v);
+    final results = varkScores.entries.map((e) {
+      final percentage = total > 0 ? (e.value / total) * 100.0 : 0.0;
+      return LearningStyleResult(
+        type: e.key,
+        score: e.value,
+        percentage: percentage,
+      );
+    }).toList();
+
+    final result = VarkQuizResult(
+      scores: varkScores,
+      results: results,
+      dominantStyle: dominantStyle,
+      totalQuestions: total,
+    );
+
+    emit(
+      VarkMLSuccess(
+        prediction: event.prediction,
+        traditionalScores: event.traditionalScores,
+        result: result,
+      ),
+    );
+  }
+
+  void _onMLPredictionFailed(
+    VarkMLPredictionFailed event,
+    Emitter<VarkState> emit,
+  ) {
+    emit(VarkError(event.message));
+  }
+
+  @override
+  Future<void> close() {
+    _cubitSubscription?.cancel();
+    return super.close();
   }
 }

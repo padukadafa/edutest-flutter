@@ -1,29 +1,30 @@
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 import '../../../../core/error/failure.dart';
-import '../repositories/vark_repository.dart';
 import '../entities/ml_prediction.dart';
+import '../repositories/vark_repository.dart';
 
 class GetMLPrediction {
   final VarkRepository repository;
 
   GetMLPrediction(this.repository);
 
-  Future<Either<Failure, MLPrediction>> call({
-    required int visualScore,
-    required int auditoryScore,
-    required int readingScore,
-    required int kinestheticScore,
-  }) async {
+  Future<Either<Failure, MLPrediction>> call(MLPredictionParams params) async {
     return await repository.getPrediction(
-      visualScore: visualScore,
-      auditoryScore: auditoryScore,
-      readingScore: readingScore,
-      kinestheticScore: kinestheticScore,
+      visualScore: params.visualScore,
+      auditoryScore: params.auditoryScore,
+      readingScore: params.readingScore,
+      kinestheticScore: params.kinestheticScore,
     );
+  }
+
+  /// Health check method
+  Future<Either<Failure, bool>> checkHealth() async {
+    return await repository.checkServerHealth();
   }
 }
 
-class MLPredictionParams {
+class MLPredictionParams extends Equatable {
   final int visualScore;
   final int auditoryScore;
   final int readingScore;
@@ -35,4 +36,12 @@ class MLPredictionParams {
     required this.readingScore,
     required this.kinestheticScore,
   });
+
+  @override
+  List<Object?> get props => [
+    visualScore,
+    auditoryScore,
+    readingScore,
+    kinestheticScore,
+  ];
 }

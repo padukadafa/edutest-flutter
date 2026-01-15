@@ -36,7 +36,6 @@ class MLPredictionModel extends MLPrediction {
     };
   }
 
-  // Copy with method untuk immutability
   MLPredictionModel copyWith({
     String? predictedStyle,
     String? styleName,
