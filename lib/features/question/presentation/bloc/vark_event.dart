@@ -65,3 +65,36 @@ class VarkMLPredictionFailed extends VarkEvent {
   @override
   List<Object?> get props => [message];
 }
+
+/// Event untuk live prediction setelah setiap jawaban
+class VarkLivePredictionRequested extends VarkEvent {
+  final int visualScore;
+  final int auditoryScore;
+  final int readingScore;
+  final int kinestheticScore;
+
+  const VarkLivePredictionRequested({
+    required this.visualScore,
+    required this.auditoryScore,
+    required this.readingScore,
+    required this.kinestheticScore,
+  });
+
+  @override
+  List<Object?> get props => [
+    visualScore,
+    auditoryScore,
+    readingScore,
+    kinestheticScore,
+  ];
+}
+
+/// Event untuk menerima live prediction
+class VarkLivePredictionReceived extends VarkEvent {
+  final MLPrediction prediction;
+
+  const VarkLivePredictionReceived({required this.prediction});
+
+  @override
+  List<Object?> get props => [prediction];
+}

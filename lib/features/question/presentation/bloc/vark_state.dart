@@ -15,25 +15,32 @@ class VarkQuestionsLoaded extends VarkState {
   final List<VarkQuestion> questions;
   final int currentIndex;
   final Map<String, String> answers;
+  final MLPrediction? livePrediction; // Live ML prediction after each answer
 
   const VarkQuestionsLoaded({
     required this.questions,
     required this.currentIndex,
     required this.answers,
+    this.livePrediction,
   });
 
   @override
-  List<Object?> get props => [questions, currentIndex, answers];
+  List<Object?> get props => [questions, currentIndex, answers, livePrediction];
 
   VarkQuestionsLoaded copyWith({
     List<VarkQuestion>? questions,
     int? currentIndex,
     Map<String, String>? answers,
+    MLPrediction? livePrediction,
+    bool clearLivePrediction = false,
   }) {
     return VarkQuestionsLoaded(
       questions: questions ?? this.questions,
       currentIndex: currentIndex ?? this.currentIndex,
       answers: answers ?? this.answers,
+      livePrediction: clearLivePrediction
+          ? null
+          : (livePrediction ?? this.livePrediction),
     );
   }
 }

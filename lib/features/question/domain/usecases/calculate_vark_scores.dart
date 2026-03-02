@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
 import '../repositories/vark_repository.dart';
-import '../../data/entities/vark_result.dart';
+import '../entities/vark_result.dart';
 
 class CalculateVarkScores {
   final VarkRepository repository;

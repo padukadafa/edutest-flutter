@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:edutest/core/error/failure.dart';
 import 'package:edutest/features/question/data/models/vark_question_model.dart';
 import 'package:edutest/features/question/domain/entities/ml_prediction.dart';
-import '../../data/entities/vark_result.dart';
+import '../entities/vark_result.dart';
 
 abstract class VarkRepository {
   Future<Either<Failure, List<VarkQuestion>>> getQuestions();

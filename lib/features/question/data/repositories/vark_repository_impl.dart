@@ -4,7 +4,7 @@ import '../../domain/entities/ml_prediction.dart';
 import '../../domain/repositories/vark_repository.dart';
 import '../datasource/vark_local_datasource.dart';
 import '../datasource/vark_remote_datasource.dart';
-import '../entities/vark_result.dart';
+import '../../domain/entities/vark_result.dart';
 import '../models/vark_question_model.dart';
 
 class VarkRepositoryImpl implements VarkRepository {

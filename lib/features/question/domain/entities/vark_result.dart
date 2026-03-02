@@ -1,4 +1,4 @@
-import '../models/vark_question_model.dart';
+import '../../data/models/vark_question_model.dart';
 
 class VarkResult {
   final Map<VarkType, int> scores;

@@ -277,6 +277,22 @@ class VarkResultPage extends StatelessWidget {
     );
   }
 
+  // Helper method to get VarkType from ML probability key
+  VarkType _getVarkTypeFromKey(String key) {
+    switch (key.toUpperCase()) {
+      case 'V':
+        return VarkType.visual;
+      case 'A':
+        return VarkType.auditory;
+      case 'R':
+        return VarkType.readWrite;
+      case 'K':
+        return VarkType.kinesthetic;
+      default:
+        return VarkType.visual;
+    }
+  }
+
   Widget _buildScoreBreakdown(VarkQuizResult result) {
     final colors = {
       VarkType.visual: const Color(0xFF4285F4),
@@ -284,6 +300,21 @@ class VarkResultPage extends StatelessWidget {
       VarkType.readWrite: const Color(0xFFFBBC05),
       VarkType.kinesthetic: const Color(0xFF34A853),
     };
+
+    // Get the data to display - ML probabilities or traditional scores
+    final List<MapEntry<VarkType, double>> stylePercentages;
+
+    if (_isMLBased && prediction != null) {
+      // Use ML probabilities
+      stylePercentages = prediction!.probabilities.entries.map((entry) {
+        return MapEntry(_getVarkTypeFromKey(entry.key), entry.value * 100);
+      }).toList()..sort((a, b) => b.value.compareTo(a.value));
+    } else {
+      // Use traditional scores
+      stylePercentages = result.sortedResults
+          .map((r) => MapEntry(r.type, r.percentage))
+          .toList();
+    }
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -303,7 +334,10 @@ class VarkResultPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics, color: Colors.blue),
+              Icon(
+                _isMLBased ? Icons.auto_graph : Icons.analytics,
+                color: Colors.blue,
+              ),
               const SizedBox(width: 8),
               Text(
                 _isMLBased ? 'Probabilitas ML' : 'Rincian Skor',
@@ -315,10 +349,10 @@ class VarkResultPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...result.sortedResults.map((styleResult) {
-            final type = styleResult.type;
+          ...stylePercentages.map((entry) {
+            final type = entry.key;
             final color = colors[type] ?? Colors.blue;
-            final percentage = styleResult.percentage;
+            final percentage = entry.value;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),

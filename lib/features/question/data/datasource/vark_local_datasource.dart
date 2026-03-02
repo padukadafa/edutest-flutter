@@ -1,6 +1,5 @@
 import '../models/vark_question_model.dart';
-import '../entities/vark_result.dart';
-import '../models/ml_prediction_model.dart';
+import '../../domain/entities/vark_result.dart';
 import '../vark_questions.dart';
 import '../../domain/entities/ml_prediction.dart';
 
@@ -19,11 +18,14 @@ class VarkLocalDataSourceImpl implements VarkLocalDataSource {
 
   @override
   Future<VarkResult> calculateScores(Map<String, String> answers) async {
+    print('DEBUG calculateScores: Received answers = $answers');
+
     final scores = <String, int>{};
 
     for (final entry in answers.entries) {
       final questionId = int.tryParse(entry.key) ?? 0;
-      final selectedType = entry.value;
+      final selectedType = entry.value; // This is 'V', 'A', 'R', or 'K'
+      print('DEBUG: Question $questionId, selectedType = $selectedType');
 
       final question = VarkQuestions.questions.firstWhere(
         (q) => q.id == questionId,
@@ -31,14 +33,25 @@ class VarkLocalDataSourceImpl implements VarkLocalDataSource {
             VarkQuestion(id: 0, category: 'VARK', question: '', options: {}),
       );
 
+      // FIX: Compare option's VarkType letter with selectedType string
       for (final optionEntry in question.options.entries) {
-        if (optionEntry.value == selectedType) {
-          final typeKey = optionEntry.key.letter;
-          scores[typeKey] = (scores[typeKey] ?? 0) + 1;
+        final optionLetter =
+            optionEntry.key.letter; // Convert VarkType to letter
+        print(
+          'DEBUG:   optionEntry.key = ${optionEntry.key}, letter = $optionLetter, matches = ${optionLetter == selectedType}',
+        );
+
+        if (optionLetter == selectedType) {
+          scores[optionLetter] = (scores[optionLetter] ?? 0) + 1;
+          print(
+            'DEBUG:   MATCH! Incremented $optionLetter score to ${scores[optionLetter]}',
+          );
           break;
         }
       }
     }
+
+    print('DEBUG calculateScores: Final scores = $scores');
 
     final results = <VarkType, int>{};
     for (final type in VarkType.values) {

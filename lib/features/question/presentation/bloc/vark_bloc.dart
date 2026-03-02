@@ -25,7 +25,7 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
     // Listen to Cubit state changes
     _cubitSubscription = varkCubit.stream.listen((cubitState) {
       if (cubitState is VarkCubitPredictionSuccess) {
-        // Emit success state dengan ML prediction
+        // Check if we're in processing state (final prediction)
         if (state is VarkMLProcessing) {
           final processingState = state as VarkMLProcessing;
           add(
@@ -34,6 +34,10 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
               traditionalScores: processingState.traditionalScores,
             ),
           );
+        }
+        // Check if we're in questions loaded state (live prediction)
+        else if (state is VarkQuestionsLoaded) {
+          add(VarkLivePredictionReceived(prediction: cubitState.prediction));
         }
       } else if (cubitState is VarkCubitConnectionError) {
         // Emit error state
@@ -46,10 +50,15 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
     on<VarkAssessmentCompleted>(_onAssessmentCompleted);
     on<VarkMLPredictionReceived>(_onMLPredictionReceived);
     on<VarkMLPredictionFailed>(_onMLPredictionFailed);
+    on<VarkLivePredictionRequested>(_onLivePredictionRequested);
+    on<VarkLivePredictionReceived>(_onLivePredictionReceived);
   }
 
   Future<void> _onStarted(VarkStarted event, Emitter<VarkState> emit) async {
     emit(VarkLoading());
+
+    // Reset Cubit state for new quiz
+    varkCubit.reset();
 
     final result = await getVarkQuestions();
 
@@ -71,9 +80,35 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
       final updatedAnswers = Map<String, String>.from(currentState.answers)
         ..[event.questionId] = event.selectedOption.letter;
 
+      print(
+        'DEBUG BLOC: Answer added - questionId: ${event.questionId}, selectedOption: ${event.selectedOption.letter}',
+      );
+      print('DEBUG BLOC: Updated answers map: $updatedAnswers');
+
       final nextIndex = currentState.currentIndex + 1;
 
       if (nextIndex < currentState.questions.length) {
+        // Calculate temporary scores for live prediction
+        final scoresResult = await calculateVarkScores(updatedAnswers);
+
+        scoresResult.fold(
+          (failure) => null, // Silently fail for live prediction
+          (scores) {
+            print(
+              'DEBUG BLOC: Live scores calculated - V:${scores.scores[VarkType.visual]}, A:${scores.scores[VarkType.auditory]}, R:${scores.scores[VarkType.readWrite]}, K:${scores.scores[VarkType.kinesthetic]}',
+            );
+            // Trigger live ML prediction after each answer
+            add(
+              VarkLivePredictionRequested(
+                visualScore: scores.scores[VarkType.visual] ?? 0,
+                auditoryScore: scores.scores[VarkType.auditory] ?? 0,
+                readingScore: scores.scores[VarkType.readWrite] ?? 0,
+                kinestheticScore: scores.scores[VarkType.kinesthetic] ?? 0,
+              ),
+            );
+          },
+        );
+
         emit(
           currentState.copyWith(
             currentIndex: nextIndex,
@@ -87,6 +122,9 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
         scoresResult.fold((failure) => emit(VarkError(failure.message)), (
           scores,
         ) {
+          print(
+            'DEBUG BLOC: Final scores - V:${scores.scores[VarkType.visual]}, A:${scores.scores[VarkType.auditory]}, R:${scores.scores[VarkType.readWrite]}, K:${scores.scores[VarkType.kinesthetic]}',
+          );
           add(
             VarkAssessmentCompleted(
               visualScore: scores.scores[VarkType.visual]!,
@@ -172,6 +210,31 @@ class VarkBloc extends Bloc<VarkEvent, VarkState> {
     Emitter<VarkState> emit,
   ) {
     emit(VarkError(event.message));
+  }
+
+  /// Handler untuk request live prediction setelah setiap jawaban
+  Future<void> _onLivePredictionRequested(
+    VarkLivePredictionRequested event,
+    Emitter<VarkState> emit,
+  ) async {
+    // Call Cubit to get live ML prediction
+    await varkCubit.getPrediction(
+      visualScore: event.visualScore,
+      auditoryScore: event.auditoryScore,
+      readingScore: event.readingScore,
+      kinestheticScore: event.kinestheticScore,
+    );
+  }
+
+  /// Handler untuk menerima live prediction dan update state
+  void _onLivePredictionReceived(
+    VarkLivePredictionReceived event,
+    Emitter<VarkState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is VarkQuestionsLoaded) {
+      emit(currentState.copyWith(livePrediction: event.prediction));
+    }
   }
 
   @override

@@ -53,6 +53,12 @@ class VarkRemoteDataSourceImpl implements VarkRemoteDataSource {
     required int readingScore,
     required int kinestheticScore,
   }) async {
+    print('DEBUG REMOTE: Sending scores to ML server:');
+    print('  visual: ${visualScore.toDouble()}');
+    print('  auditory: ${auditoryScore.toDouble()}');
+    print('  readwrite: ${readingScore.toDouble()}');
+    print('  kinesthetic: ${kinestheticScore.toDouble()}');
+
     try {
       final response = await dio.post(
         '/predict',
