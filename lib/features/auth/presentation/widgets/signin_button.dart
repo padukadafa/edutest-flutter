@@ -12,7 +12,7 @@ class SigninButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        final isLoading = state is SigninLoading;
+        final isLoading = state is AuthLoading;
 
         return SizedBox(
           width: double.infinity,

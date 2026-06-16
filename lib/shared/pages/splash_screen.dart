@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authState = context.read<AuthBloc>().state;
 
-      if (authState is SigninSuccess) {
+      if (authState is AuthSuccess) {
         Navigator.pushReplacementNamed(context, RouteName.home);
       } else {
         Navigator.pushReplacementNamed(context, RouteName.signin);

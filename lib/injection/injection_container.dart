@@ -1,13 +1,18 @@
+import 'package:edutest/data/repositories/firebase_auth_repository.dart';
+import 'package:edutest/domain/repositories/auth_repository.dart';
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'injection_vark.dart' as vark_injection;
 
 final sl = GetIt.instance;
 
 Future<void> initInjection() async {
-  // Register Blocs
-  sl.registerFactory(() => AuthBloc());
+  // Register Firebase Auth Repository
+  sl.registerFactory<AuthRepository>(
+    () => FirebaseAuthRepository(),
+  );
 
-  // Initialize VARK dependencies
-  await vark_injection.initVark();
+  // Register Blocs
+  sl.registerFactory(
+    () => AuthBloc(authRepository: sl<AuthRepository>()),
+  );
 }
