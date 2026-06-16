@@ -30,7 +30,10 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> register({
+  User? get currentUser => _firebaseAuth.currentUser;
+
+  @override
+  Future<Either<Failure, User>> register({
     required String name,
     required String email,
     required String password,
@@ -47,10 +50,14 @@ class FirebaseAuthRepository implements AuthRepository {
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
-      final uid = credential.user?.uid ?? '';
-      log('Auth Register: Registration successful - uid: $uid');
+      final user = credential.user;
+      if (user == null) {
+        return Left(AuthFailure('Failed to create user'));
+      }
 
-      return Right(uid);
+      log('Auth Register: Registration successful - uid: ${user.uid}');
+
+      return Right(user);
     } on FirebaseAuthException catch (e) {
       log('Auth Register: FirebaseAuthException caught');
       log('Auth Register: Code: ${e.code}');
@@ -67,21 +74,26 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> login({
+  Future<Either<Failure, User>> login({
     required String email,
     required String password,
   }) async {
     try {
       log('Auth Login: Attempting to login - $email');
       
-      await _firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      final user = credential.user;
+      if (user == null) {
+        return Left(AuthFailure('Failed to login'));
+      }
+
       log('Auth Login: Login successful');
 
-      return const Right(unit);
+      return Right(user);
     } on FirebaseAuthException catch (e) {
       log('Auth Login: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}');
       return Left(AuthFailure(_getAuthErrorMessage(e.code)));
@@ -93,7 +105,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> loginWithGoogle() async {
+  Future<Either<Failure, User>> loginWithGoogle() async {
     try {
       log('Google Sign-In: Starting Google Sign-In flow');
       
@@ -124,7 +136,12 @@ class FirebaseAuthRepository implements AuthRepository {
       
       log('Google Sign-In: Firebase Sign-In successful - ${userCredential.user?.email}');
 
-      return const Right(unit);
+      final user = userCredential.user;
+      if (user == null) {
+        return const Left(AuthFailure('Failed to get user'));
+      }
+
+      return Right(user);
     } on FirebaseAuthException catch (e) {
       log('Google Sign-In: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}');
       log('Google Sign-In: FirebaseAuthException - Full error: $e');

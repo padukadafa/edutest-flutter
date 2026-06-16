@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/themes/app_theme.dart';
 import 'injection/injection_container.dart';
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:edutest/features/discuss/presentation/bloc/discussion_list_bloc.dart';
+import 'package:edutest/features/discuss/presentation/bloc/discussion_event.dart';
 import 'package:edutest/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:edutest/shared/pages/auth_wrapper.dart';
 
@@ -24,6 +26,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<ProfileCubit>(create: (_) => sl<ProfileCubit>()),
+        BlocProvider<DiscussionListBloc>(
+          create: (_) => sl<DiscussionListBloc>()..add(LoadDiscussions()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

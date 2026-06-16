@@ -27,11 +27,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordSubmitted>(_onAuthForgotPasswordSubmitted);
     on<AuthSignoutRequested>(_onSignout);
 
-    _authSubscription = _authRepository.authStateChanges().listen((user) {
+    _authSubscription = _authRepository.authStateChanges().listen((user) async {
       log('AuthBloc: Auth state changed - ${user?.email ?? "null"}');
       if (user != null && state is! AuthSuccess) {
         log('AuthBloc: Emitting AuthSuccess');
-        emit(AuthSuccess());
+        final profile = await _profileRepository.getProfile(user.uid);
+        profile.fold(
+          (failure) {
+            emit(AuthSuccess(
+              userId: user.uid,
+              userName: user.displayName ?? user.email?.split('@')[0] ?? 'User',
+              userPhotoUrl: user.photoURL,
+            ));
+          },
+          (profileData) {
+            emit(AuthSuccess(
+              userId: user.uid,
+              userName: profileData.name,
+              userPhotoUrl: profileData.photoUrl ?? user.photoURL,
+            ));
+          },
+        );
       } else if (user == null && state is AuthSuccess) {
         log('AuthBloc: Emitting AuthInitial');
         emit(AuthInitial());
@@ -58,7 +74,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) => emit(AuthFailure(failure.message)),
-      (_) => emit(AuthSuccess()),
+      (user) async {
+        final profile = await _profileRepository.getProfile(user.uid);
+        profile.fold(
+          (failure) {
+            emit(AuthSuccess(
+              userId: user.uid,
+              userName: user.displayName ?? user.email?.split('@')[0] ?? 'User',
+              userPhotoUrl: user.photoURL,
+            ));
+          },
+          (profileData) {
+            emit(AuthSuccess(
+              userId: user.uid,
+              userName: profileData.name,
+              userPhotoUrl: profileData.photoUrl ?? user.photoURL,
+            ));
+          },
+        );
+      },
     );
   }
 
@@ -81,27 +115,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           log('AuthBloc: Registration failed - ${failure.message}');
           emit(AuthFailure(failure.message));
         },
-        (uid) async {
-          log('AuthBloc: Registration successful, uid: $uid');
-          
-          log('AuthBloc: Creating profile in Firestore for uid: $uid');
-          final profileResult = await _profileRepository.updateProfile(
-            uid: uid,
-            name: event.name,
-            phone: null,
-          );
+          (user) async {
+            log('AuthBloc: Registration successful, uid: ${user.uid}');
+            
+            log('AuthBloc: Creating profile in Firestore for uid: ${user.uid}');
+            final profileResult = await _profileRepository.updateProfile(
+              uid: user.uid,
+              name: event.name,
+              phone: null,
+            );
 
-          profileResult.fold(
-            (failure) {
-              log('AuthBloc: Failed to create profile - ${failure.message}');
-            },
-            (_) {
-              log('AuthBloc: Profile created successfully in Firestore');
-            },
-          );
+            profileResult.fold(
+              (failure) {
+                log('AuthBloc: Failed to create profile - ${failure.message}');
+              },
+              (_) {
+                log('AuthBloc: Profile created successfully in Firestore');
+              },
+            );
 
-          emit(AuthSuccess());
-        },
+            emit(AuthSuccess(
+              userId: user.uid,
+              userName: event.name,
+              userPhotoUrl: user.photoURL,
+            ));
+          },
       );
     } catch (e, stackTrace) {
       log('AuthBloc: Unhandled error in registration - $e');
@@ -124,9 +162,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         log('AuthBloc: Google Sign-In failed - ${failure.message}');
         emit(AuthFailure(failure.message));
       },
-      (_) {
+      (user) {
         log('AuthBloc: Google Sign-In successful');
-        emit(AuthSuccess());
+        emit(AuthSuccess(
+          userId: user.uid,
+          userName: user.displayName ?? user.email?.split('@')[0] ?? 'User',
+          userPhotoUrl: user.photoURL,
+        ));
       },
     );
   }
