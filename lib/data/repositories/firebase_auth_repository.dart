@@ -3,23 +3,26 @@ import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:edutest/core/constants/app_constants.dart';
 import 'package:edutest/domain/failure.dart';
 import 'package:edutest/domain/repositories/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
+  GoogleSignIn? _googleSignIn;
   bool _initialized = false;
 
-  FirebaseAuthRepository({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
+  FirebaseAuthRepository({FirebaseAuth? firebaseAuth})
+    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
+  GoogleSignIn get _instance {
+    _googleSignIn ??= GoogleSignIn.instance;
+    return _googleSignIn!;
+  }
 
   Future<void> _ensureInitialized() async {
     if (!_initialized) {
-      await _googleSignIn.initialize();
+      await _instance.initialize();
       _initialized = true;
     }
   }
@@ -41,7 +44,7 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       log('Auth Register: Attempting to register - $email');
       log('Auth Register: Password length - ${password.length}');
-      
+
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -80,7 +83,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }) async {
     try {
       log('Auth Login: Attempting to login - $email');
-      
+
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -95,7 +98,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
       return Right(user);
     } on FirebaseAuthException catch (e) {
-      log('Auth Login: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}');
+      log(
+        'Auth Login: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}',
+      );
       return Left(AuthFailure(_getAuthErrorMessage(e.code)));
     } catch (e, stackTrace) {
       log('Auth Login: Unexpected error - $e');
@@ -108,11 +113,11 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<Either<Failure, User>> loginWithGoogle() async {
     try {
       log('Google Sign-In: Starting Google Sign-In flow');
-      
+
       await _ensureInitialized();
-      await _googleSignIn.signOut();
-      
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      await _instance.signOut();
+
+      final GoogleSignInAccount googleUser = await _instance.authenticate();
 
       log('Google Sign-In: User selected - ${googleUser.email}');
       log('Google Sign-In: Fetching authentication tokens');
@@ -122,7 +127,9 @@ class FirebaseAuthRepository implements AuthRepository {
       log('Google Sign-In: ID token present - ${googleAuth.idToken != null}');
 
       if (googleAuth.idToken == null) {
-        log('Google Sign-In: ID token is null - this is required for Firebase Auth');
+        log(
+          'Google Sign-In: ID token is null - this is required for Firebase Auth',
+        );
         return const Left(AuthFailure('Failed to get Google ID token'));
       }
 
@@ -131,10 +138,14 @@ class FirebaseAuthRepository implements AuthRepository {
       );
 
       log('Google Sign-In: Signing in to Firebase with Google credential');
-      
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
-      
-      log('Google Sign-In: Firebase Sign-In successful - ${userCredential.user?.email}');
+
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+
+      log(
+        'Google Sign-In: Firebase Sign-In successful - ${userCredential.user?.email}',
+      );
 
       final user = userCredential.user;
       if (user == null) {
@@ -143,7 +154,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
       return Right(user);
     } on FirebaseAuthException catch (e) {
-      log('Google Sign-In: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}');
+      log(
+        'Google Sign-In: FirebaseAuthException - Code: ${e.code}, Message: ${e.message}',
+      );
       log('Google Sign-In: FirebaseAuthException - Full error: $e');
       return Left(AuthFailure(_getAuthErrorMessage(e.code)));
     } catch (e, stackTrace) {
@@ -172,12 +185,9 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<Either<Failure, Unit>> signOut() async {
     try {
       log('Auth SignOut: Attempting to sign out');
-      
+
       await _ensureInitialized();
-      await Future.wait([
-        _firebaseAuth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      await Future.wait([_firebaseAuth.signOut(), _instance.signOut()]);
 
       log('Auth SignOut: Sign out successful');
 

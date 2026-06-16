@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:286978817451:android:c78d177844d951909f66ee',
     messagingSenderId: '286978817451',
     projectId: 'edutest-351231',
+    databaseURL: 'https://edutest-351231-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'edutest-351231.firebasestorage.app',
   );
 
@@ -62,7 +63,11 @@ class DefaultFirebaseOptions {
     appId: '1:286978817451:ios:4c295779ffc00cb29f66ee',
     messagingSenderId: '286978817451',
     projectId: 'edutest-351231',
+    databaseURL: 'https://edutest-351231-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'edutest-351231.firebasestorage.app',
+    androidClientId: '286978817451-ihanpq7easr4en32narp6qremtcrglmt.apps.googleusercontent.com',
+    iosClientId: '286978817451-ej3vd7av1gs7r64parrjae65dd3upg5l.apps.googleusercontent.com',
     iosBundleId: 'com.example.edutest',
   );
+
 }

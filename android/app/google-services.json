@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "286978817451",
+    "firebase_url": "https://edutest-351231-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "edutest-351231",
     "storage_bucket": "edutest-351231.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.edutest"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "286978817451-ihanpq7easr4en32narp6qremtcrglmt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.edutest",
+            "certificate_hash": "8cc4e6e741dc90125176f439733aff28a69ba163"
+          }
+        },
+        {
+          "client_id": "286978817451-pr1ihqgl09sogv3le9hu6a86ljcalahm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCpzgmVRG_8AvbQcUIs8OojNQIBb4u_oYE"
@@ -20,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "286978817451-pr1ihqgl09sogv3le9hu6a86ljcalahm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "286978817451-ej3vd7av1gs7r64parrjae65dd3upg5l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.edutest"
+              }
+            }
+          ]
         }
       }
     }
