@@ -31,6 +31,7 @@ class DiscussPage extends StatelessWidget {
           }
         },
         child: BlocBuilder<DiscussionListBloc, DiscussionState>(
+          buildWhen: (previous, current) => current is! DiscussionCreated,
           builder: (context, state) {
             if (state is DiscussionsLoading) {
               return const Center(child: CircularProgressIndicator());
