@@ -12,15 +12,8 @@ class VarkIntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // Cubit untuk server connection
-        BlocProvider(
-          create: (context) => di.sl<VarkCubit>()..checkServerHealth(),
-        ),
-        // BLoC untuk UI state (jika belum ada dari parent)
-        BlocProvider.value(value: context.read<VarkBloc>()),
-      ],
+    return BlocProvider(
+      create: (context) => di.sl<VarkCubit>()..checkServerHealth(),
       child: const VarkIntroPageContent(),
     );
   }

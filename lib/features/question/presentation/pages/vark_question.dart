@@ -3,8 +3,12 @@ import 'package:edutest/features/question/data/models/vark_question_model.dart';
 import 'package:edutest/features/question/presentation/bloc/vark_bloc.dart';
 import 'package:edutest/features/question/presentation/cubit/vark_cubit.dart';
 import 'package:edutest/shared/widgets/question_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edutest/domain/entities/vark_test_result.dart';
+import 'package:edutest/injection/injection_container.dart' as di;
+import 'package:edutest/domain/repositories/vark_result_repository.dart';
 
 class VarkQuestionPage extends StatefulWidget {
   const VarkQuestionPage({super.key});
@@ -30,7 +34,7 @@ class _VarkQuestionPageState extends State<VarkQuestionPage> {
         ),
       ),
       body: BlocConsumer<VarkBloc, VarkState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is VarkMLProcessing) {
             final varkCubit = context.read<VarkCubit>();
 
@@ -80,6 +84,29 @@ class _VarkQuestionPageState extends State<VarkQuestionPage> {
           }
           if (state is VarkMLSuccess) {
             Navigator.of(context).pop();
+
+            final uid = FirebaseAuth.instance.currentUser?.uid;
+            if (uid != null) {
+              final repository = di.sl<VarkResultRepository>();
+              final testResult = VarkTestResult(
+                id: '',
+                uid: uid,
+                dominantStyle: VarkTypeResultExtension.fromString(
+                  state.prediction.predictedStyle,
+                ),
+                scores: {
+                  'V': state.traditionalScores['visual'] ?? 0,
+                  'A': state.traditionalScores['auditory'] ?? 0,
+                  'R': state.traditionalScores['reading'] ?? 0,
+                  'K': state.traditionalScores['kinesthetic'] ?? 0,
+                },
+                mlPrediction: state.prediction.predictedStyle,
+                mlConfidence: state.prediction.confidencePercentage,
+                completedAt: DateTime.now(),
+              );
+
+              await repository.saveResult(testResult);
+            }
 
             Navigator.pushReplacementNamed(
               context,

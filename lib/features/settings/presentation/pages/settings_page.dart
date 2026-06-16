@@ -1,6 +1,7 @@
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:edutest/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:edutest/features/profile/presentation/pages/profile_page.dart';
+import 'package:edutest/features/settings/presentation/pages/test_results_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +39,17 @@ class SettingsPage extends StatelessWidget {
               },
               child: SettingsTile(icon: Icons.person, title: 'Profile'),
             ),
-            SettingsTile(icon: Icons.bar_chart, title: 'Test Results'),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TestResultsPage(),
+                  ),
+                );
+              },
+              child: SettingsTile(icon: Icons.bar_chart, title: 'Test Results'),
+            ),
             SettingsTile(icon: Icons.settings, title: 'Settings'),
             SettingsTile(icon: Icons.help, title: 'FAQs'),
 
