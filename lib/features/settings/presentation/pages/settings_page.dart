@@ -1,4 +1,7 @@
 import 'package:edutest/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:edutest/features/profile/presentation/bloc/profile_cubit.dart';
+import 'package:edutest/features/profile/presentation/pages/profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/profile_card.dart';
@@ -9,6 +12,8 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -17,7 +22,22 @@ class SettingsPage extends StatelessWidget {
             const ProfileCard(),
             const SizedBox(height: 20),
 
-            SettingsTile(icon: Icons.person, title: 'Profile'),
+            GestureDetector(
+              onTap: () {
+                if (uid.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<ProfileCubit>(),
+                        child: ProfilePage(uid: uid),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: SettingsTile(icon: Icons.person, title: 'Profile'),
+            ),
             SettingsTile(icon: Icons.bar_chart, title: 'Test Results'),
             SettingsTile(icon: Icons.settings, title: 'Settings'),
             SettingsTile(icon: Icons.help, title: 'FAQs'),

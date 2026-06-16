@@ -5,7 +5,7 @@ import 'package:edutest/domain/failure.dart';
 abstract class AuthRepository {
   Stream<User?> authStateChanges();
 
-  Future<Either<Failure, Unit>> register({
+  Future<Either<Failure, String>> register({
     required String name,
     required String email,
     required String password,

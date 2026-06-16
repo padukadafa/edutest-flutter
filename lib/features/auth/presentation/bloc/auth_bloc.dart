@@ -5,16 +5,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:edutest/domain/repositories/auth_repository.dart';
+import 'package:edutest/domain/repositories/profile_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
+  final ProfileRepository _profileRepository;
   late final StreamSubscription<User?> _authSubscription;
 
-  AuthBloc({required AuthRepository authRepository})
-      : _authRepository = authRepository,
+  AuthBloc({
+    required AuthRepository authRepository,
+    required ProfileRepository profileRepository,
+  })  : _authRepository = authRepository,
+        _profileRepository = profileRepository,
         super(AuthInitial()) {
     on<AuthLoginSubmitted>(_onAuthLoginSubmitted);
     on<AuthRegisterSubmitted>(_onAuthRegisterSubmitted);
@@ -76,8 +81,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           log('AuthBloc: Registration failed - ${failure.message}');
           emit(AuthFailure(failure.message));
         },
-        (_) {
-          log('AuthBloc: Registration successful');
+        (uid) async {
+          log('AuthBloc: Registration successful, uid: $uid');
+          
+          log('AuthBloc: Creating profile in Firestore for uid: $uid');
+          final profileResult = await _profileRepository.updateProfile(
+            uid: uid,
+            name: event.name,
+            phone: null,
+          );
+
+          profileResult.fold(
+            (failure) {
+              log('AuthBloc: Failed to create profile - ${failure.message}');
+            },
+            (_) {
+              log('AuthBloc: Profile created successfully in Firestore');
+            },
+          );
+
           emit(AuthSuccess());
         },
       );

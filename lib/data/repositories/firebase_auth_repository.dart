@@ -9,12 +9,20 @@ import 'package:edutest/domain/repositories/auth_repository.dart';
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  bool _initialized = false;
 
   FirebaseAuthRepository({
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+        _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
+
+  Future<void> _ensureInitialized() async {
+    if (!_initialized) {
+      await _googleSignIn.initialize();
+      _initialized = true;
+    }
+  }
 
   @override
   Stream<User?> authStateChanges() {
@@ -22,7 +30,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> register({
+  Future<Either<Failure, String>> register({
     required String name,
     required String email,
     required String password,
@@ -39,9 +47,10 @@ class FirebaseAuthRepository implements AuthRepository {
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
-      log('Auth Register: Registration successful - ${credential.user?.uid}');
+      final uid = credential.user?.uid ?? '';
+      log('Auth Register: Registration successful - uid: $uid');
 
-      return const Right(unit);
+      return Right(uid);
     } on FirebaseAuthException catch (e) {
       log('Auth Register: FirebaseAuthException caught');
       log('Auth Register: Code: ${e.code}');
@@ -88,22 +97,16 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       log('Google Sign-In: Starting Google Sign-In flow');
       
+      await _ensureInitialized();
       await _googleSignIn.signOut();
       
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        log('Google Sign-In: User cancelled the sign-in flow');
-        return const Left(AuthFailure('Google sign-in was cancelled'));
-      }
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       log('Google Sign-In: User selected - ${googleUser.email}');
       log('Google Sign-In: Fetching authentication tokens');
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
-      log('Google Sign-In: Access token present - ${googleAuth.accessToken != null}');
       log('Google Sign-In: ID token present - ${googleAuth.idToken != null}');
 
       if (googleAuth.idToken == null) {
@@ -112,7 +115,6 @@ class FirebaseAuthRepository implements AuthRepository {
       }
 
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -154,6 +156,7 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       log('Auth SignOut: Attempting to sign out');
       
+      await _ensureInitialized();
       await Future.wait([
         _firebaseAuth.signOut(),
         _googleSignIn.signOut(),
