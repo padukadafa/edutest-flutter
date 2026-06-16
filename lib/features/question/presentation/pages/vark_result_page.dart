@@ -1,6 +1,9 @@
+import 'package:edutest/core/routes/route_name.dart';
+import 'package:edutest/core/themes/app_colors.dart';
 import 'package:edutest/features/question/data/models/vark_question_model.dart';
 import 'package:edutest/features/question/domain/entities/ml_prediction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class VarkResultPage extends StatelessWidget {
   final VarkQuizResult result;
@@ -63,10 +66,14 @@ class VarkResultPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => _shareResult(context),
+            tooltip: 'Bagikan Hasil',
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
+            onPressed: () => _retryQuiz(context),
+            tooltip: 'Ulangi Kuis',
           ),
         ],
       ),
@@ -89,6 +96,8 @@ class VarkResultPage extends StatelessWidget {
               _buildMLRecommendations(),
             ],
             const SizedBox(height: 32),
+            _buildActionButtons(context),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -582,5 +591,88 @@ class VarkResultPage extends StatelessWidget {
           'Istirahat aktif di antara sesi belajar',
         ];
     }
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: () => _retryQuiz(context),
+            icon: const Icon(Icons.replay),
+            label: const Text(
+              'Ulangi Kuis',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: OutlinedButton.icon(
+            onPressed: () => _shareResult(context),
+            icon: const Icon(Icons.share),
+            label: const Text(
+              'Bagikan Hasil',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _retryQuiz(BuildContext context) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      RouteName.varkIntro,
+      (route) => route.isFirst,
+    );
+  }
+
+  void _shareResult(BuildContext context) {
+    final scores = result.results
+        .map((r) => '${r.type.displayName}: ${r.score} poin')
+        .join('\n');
+
+    final text = '''
+📚 Hasil Quiz VARK - Edutest
+
+🎯 Gaya Belajar Dominan: ${_dominantStyle.displayName} ${_dominantStyle.icon}
+📊 Confidence: $_confidenceText
+
+📈 Detail Skor:
+$scores
+
+${_isMLBased ? '🤖 ML Prediction: ${prediction!.predictedStyle} (${prediction!.confidencePercentage})' : ''}
+
+Temukan gaya belajar kamu juga di Edutest!
+''';
+
+    Clipboard.setData(ClipboardData(text: text));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Hasil berhasil disalin ke clipboard!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 }

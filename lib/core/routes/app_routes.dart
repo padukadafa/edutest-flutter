@@ -26,22 +26,11 @@ class AppRoutes {
         );
 
       case RouteName.varkQuestion:
-        final args = settings.arguments as Map<String, dynamic>?;
-
-        if (args == null || args['varkBloc'] is! VarkBloc) {
-          return _errorPage(
-            'VarkBloc tidak ditemukan.\nHalaman harus diakses dari Intro.',
-          );
-        }
-
-        final varkBloc = args['varkBloc'] as VarkBloc;
-        final varkCubit = args['varkCubit'] as VarkCubit?;
-
         return MaterialPageRoute(
-          builder: (_) => MultiBlocProvider(
+          builder: (context) => MultiBlocProvider(
             providers: [
-              BlocProvider.value(value: varkBloc),
-              BlocProvider.value(value: varkCubit ?? sl<VarkCubit>()),
+              BlocProvider.value(value: context.read<VarkBloc>()),
+              BlocProvider.value(value: context.read<VarkCubit>()),
             ],
             child: const VarkQuestionPage(),
           ),
@@ -60,17 +49,9 @@ class AppRoutes {
         }
 
         final prediction = args['prediction'] as MLPrediction?;
-        final varkBloc = args['varkBloc'] as VarkBloc?;
-        final varkCubit = args['varkCubit'] as VarkCubit?;
 
         return MaterialPageRoute(
-          builder: (_) => MultiBlocProvider(
-            providers: [
-              BlocProvider.value(value: varkBloc ?? sl<VarkBloc>()),
-              BlocProvider.value(value: varkCubit ?? sl<VarkCubit>()),
-            ],
-            child: VarkResultPage(result: result, prediction: prediction),
-          ),
+          builder: (_) => VarkResultPage(result: result, prediction: prediction),
         );
 
       default:
